@@ -1,9 +1,15 @@
 module StackInstr where
 
+import Control.Monad
+
 data Data
   = DI Int
   | DS String
-  deriving (Show, Eq)
+  deriving (Eq)
+
+instance Show Data where
+  show (DS s) = s
+  show (DI i) = "Error tried to print DI of " ++ show i
 
 data Instruction
   = Push Data
@@ -27,9 +33,11 @@ type Effects = ([Data], [Data])
 -- >>> runStack [pushs ", really", pushs " years old", pushi 5, pushs "I am ", Add, Add, Add, Print]
 -- I am 5 years old, really
 
-runStack :: [Instruction] -> Effects
+runStack :: [Instruction] -> IO ()
 runStack instructions =
-  interate' instructions ([],[])
+  do
+    let effects = interate' instructions ([],[])
+    msum (putStrLn <$> (show <$> (fst effects)))
 
 interate' :: [Instruction] -> Effects -> Effects
 interate' [] state = state
@@ -50,7 +58,7 @@ runStack' (out,(head:rest)) Print =
   (head:out, rest)
 runStack' state@(_,[]) Print = state
 
--- | Data Combinations
+-- | Data <>
 --
 -- Examples:
 --
@@ -62,10 +70,10 @@ runStack' state@(_,[]) Print = state
 -- prop> \x y -> isDS (DI x <> DS y)
 
 (<>) :: Data -> Data -> Data
-(DI int1) <> (DI int2) = DI (int1 + int2)
-(DS str1) <> (DS str2) = DS (str1 ++ str2)
-(DI int1) <> (DS str2) = DS ((show int1) ++ str2)
-(DS str1) <> (DI int2) = DS (str1 ++ (show int2))
+(DI i1) <> (DI i2) = DI (i1 + i2)
+(DS s1) <> (DS s2) = DS (s1 ++ s2)
+(DI i1) <> (DS s2) = DS ((show i1) ++ s2)
+(DS s1) <> (DI i2) = DS (s1 ++ (show i2))
 
 isDS :: Data -> Bool
 isDS (DI _) = False
