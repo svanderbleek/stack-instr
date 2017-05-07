@@ -6,3 +6,4 @@ cabal-version: >= 1.2
 library
   build-depends: base
                , doctest
+               , QuickCheck
