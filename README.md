@@ -1,3 +1,3 @@
 # stack-instr
 
-todo: Thread IO and Monad Transformer Stack with State!!!! :O
+Jane Street doesn't know what they are missing ;)
